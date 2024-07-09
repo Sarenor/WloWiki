@@ -16,7 +16,12 @@ const config = {
 		files: {
 			assets: 'static'
 		  },
-		adapter: adapter()
+		adapter: adapter(
+			{
+				fallback: 'index.html',
+			}
+		)
+		
 	}
 };
 export default config;
