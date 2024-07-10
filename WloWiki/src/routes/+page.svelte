@@ -1,12 +1,6 @@
 <script>
     let pages = [
-      { name: 'Items', path: '/equipment' },
-      { name: 'Alchemy', path: '/alchemy' },
-      { name: 'Monsters', path: '/monsters' },
-      { name: 'Manufacture', path: '/manufacture' },
-      { name: 'Quests', path: '/quests' },
-      { name: 'Guides', path: '/guides' },
-      { name: 'About', path: '/about' }
+      { name: 'Items', path: '/equipment' }
     ];
   </script>
   
