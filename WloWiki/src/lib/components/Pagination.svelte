@@ -17,7 +17,7 @@
 		type="button"
 		class="hover:variant-soft-primary"
 		class:disabled={$pageNumber === 1}
-		on:click={() => handler.setPage('previous')}
+		on:click={() => setPage('previous')}
 	>
 		←
 	</button>
@@ -27,7 +27,7 @@
 			class="hover:variant-soft-primary"
 			class:active={$pageNumber === page}
 			class:ellipse={page === null}
-			on:click={() => handler.setPage(page)}
+			on:click={() => setPage(page)}
 		>
 			{page ?? '...'}
 		</button>
@@ -36,7 +36,7 @@
 		type="button"
 		class="hover:variant-soft-primary"
 		class:disabled={$pageNumber === $pageCount}
-		on:click={() => handler.setPage('next')}
+		on:click={() => setPage('next')}
 	>
 		→
 	</button>
@@ -48,7 +48,7 @@
 		type="button"
 		class="btn variant-ghost-surface mr-2 mb-2 hover:variant-soft-primary"
 		class:disabled={$pageNumber === 1}
-		on:click={() => handler.setPage('previous')}
+		on:click={() => setPage('previous')}
 	>
 		←
 	</button>
@@ -56,7 +56,7 @@
 		type="button"
 		class="btn variant-ghost-surface mb-2 hover:variant-soft-primary"
 		class:disabled={$pageNumber === $pageCount}
-		on:click={() => handler.setPage('next')}
+		on:click={() => setPage('next')}
 	>
 		→
 	</button>
