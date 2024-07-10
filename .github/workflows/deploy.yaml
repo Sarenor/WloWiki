@@ -19,9 +19,9 @@ jobs:
           node-version: '16'
 
       - name: test
-        run: echo "test"
+        run: ls -lha
       - name: Install dependencies
-        run: npm install
+        run: npm install Flurrih/WloWiki/
 
       - name: Build project
         run: npm run build
