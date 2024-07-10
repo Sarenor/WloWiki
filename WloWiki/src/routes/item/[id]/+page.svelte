@@ -1,7 +1,7 @@
 
 <script>
     import { page } from '$app/stores'
-    import data from '$lib/data/api';
+    import data from '$lib/data/api_static';
     import dataAlchemy from '$lib/data/alchemy';
   //export let image = "/src/routes/items/imagespng/red_dragon_gown.png"; // Placeholder image URL
 
