@@ -14,7 +14,7 @@
     import { reload } from '$lib/data/api'
 
     
-    const handler = new DataHandler<Row>([], { rowsPerPage: 15, totalRows: 200});
+    const handler = new DataHandler<Row>([], { rowsPerPage: 15, totalRows: 9999});
     const rows = handler.getRows();
 
     handler.onChange((state: State) => reload(state));
