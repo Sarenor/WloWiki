@@ -16,9 +16,7 @@ const config = {
 		files: {
 			assets: 'static'
 		  },
-		  paths: {
-			base: '/equipment',
-		},
+		  
 		adapter: adapter(
 			{
 				fallback: 'index.html',
