@@ -6,7 +6,7 @@
 
 
 
-
+<!-- 
 
 <style>
     .main-container {
@@ -64,13 +64,13 @@
         50% { transform: scale(1.1); }
         100% { transform: scale(1); }
     }
-</style>
+</style> -->
 
 <Datatable/>
 
-<div class="main-container">
+<!-- <div class="main-container">
     <div class="spooky-effect"></div>
     <img src="maid.png" alt="Anime Witch" class="witch-image">
     <h1 class="title">Welcome to the Wlo Lair!</h1>
     <p class="subtitle" ><a href="/equipment">Equipments</a></p>
-</div>
+</div> -->
