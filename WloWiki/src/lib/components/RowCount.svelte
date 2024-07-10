@@ -1,7 +1,8 @@
 <script lang="ts">
-	import type { DataHandler } from '@vincjo/datatables';
+	import type { DataHandler } from '@vincjo/datatables/remote';
 	export let handler: DataHandler;
 	const rowCount = handler.getRowCount();
+	console.warn(rowCount)
 </script>
 
 <aside class="text-sm leading-8 mr-6">

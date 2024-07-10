@@ -5,6 +5,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Item represents an item document in MongoDB
@@ -49,19 +50,33 @@ func (ic *ItemsCollection) InsertOne(item Item) (*mongo.InsertOneResult, error) 
 	return result, nil
 }
 
-// FindAll fetches all items from the collection
-func (ic *ItemsCollection) FindAll() ([]Item, error) {
-	cursor, err := ic.collection.Find(context.TODO(), bson.D{{}})
+// FindAll retrieves all items from the collection with the given filter, sort options, skip, and limit
+func (ic *ItemsCollection) FindAll(filter bson.M, sortOptions bson.D, skip int64, limit int64) ([]bson.M, error) {
+	findOptions := options.Find()
+	findOptions.SetSort(sortOptions)
+	findOptions.SetSkip(skip)
+	findOptions.SetLimit(limit)
+
+	cursor, err := ic.collection.Find(context.TODO(), filter, findOptions)
 	if err != nil {
 		return nil, err
 	}
+	defer cursor.Close(context.TODO())
 
-	var results []Item
-	if err := cursor.All(context.TODO(), &results); err != nil {
+	var items []bson.M
+	if err := cursor.All(context.TODO(), &items); err != nil {
 		return nil, err
 	}
+	return items, nil
+}
 
-	return results, nil
+// CountDocuments counts the number of documents in the collection that match the given filter
+func (ic *ItemsCollection) CountDocuments(filter bson.M) (int64, error) {
+	count, err := ic.collection.CountDocuments(context.TODO(), filter)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 // UpdateOne updates a single item matching the filter

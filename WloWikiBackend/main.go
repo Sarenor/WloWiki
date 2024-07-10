@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Item represents a simple item structure
@@ -24,37 +26,13 @@ var nextID = 1
 
 func main() {
 	r := mux.NewRouter()
-	client, err := mongo.NewClient("mongodb://admin:<PASS>@49.13.132.251:27017")
+	client, err := mongo.NewClient("mongodb://admin:ojNBLAZXEcqc2@49.13.132.251:27017")
 	if err != nil {
 		log.Fatalf("Failed to create MongoDB client: %v", err)
 	}
 
 	// Create the Items collection instance
 	itemsCollection := mongo.NewItemsCollection(client)
-
-	// // Define your items
-	// items := []mongo.Item{
-	// 	{Image: "src/routes/items/images/silvery_star.png", Rank: "37 (76)", Name: "Silvery Star", Type: "Armor (Head)", Base: "Corundum / Platinum", Attributes: "MAT: +37"},
-	// 	{Image: "src/routes/items/images/voodoo_doll.png", Rank: "32 (64)", Name: "Voodo Doll", Type: "Armor (Head)", Base: "Corundum / Platinum", Attributes: "MAT: +37"},
-	// 	{Image: "src/routes/items/images/jade_helmet.png", Rank: "26 (52)", Name: "Jade Helmet", Type: "Armor (Head)", Base: "Crystallization / Titanium / Magic", Attributes: "SPD: +26"},
-	// }
-
-	// // Insert Items
-	// if err := itemsCollection.InsertMany(items); err != nil {
-	// 	log.Fatalf("Failed to insert documents: %v", err)
-	// }
-
-	//fmt.Println("Items inserted successfully!")
-
-	// Fetch and display items
-	// fetchedItems, err := itemsCollection.FindAll()
-	// if err != nil {
-	// 	log.Fatalf("Failed to fetch documents: %v", err)
-	// }
-
-	// for _, item := range fetchedItems {
-	// 	fmt.Println(item)
-	// }
 
 	r.HandleFunc("/api/items", func(w http.ResponseWriter, r *http.Request) {
 		// CORS Headers
@@ -83,15 +61,61 @@ func main() {
 	}
 }
 
-// fetchItemsHandler handles the GET request to fetch all items
 func fetchItemsHandler(w http.ResponseWriter, r *http.Request, collection *mongo.ItemsCollection) {
-	items, err := collection.FindAll()
+	pageNumber, _ := strconv.Atoi(r.URL.Query().Get("_page"))
+	rowsPerPage, _ := strconv.Atoi(r.URL.Query().Get("_limit"))
+	sortOrder := r.URL.Query().Get("_order")
+	sortBy := r.URL.Query().Get("_sort")
+	searchQuery := r.URL.Query().Get("q")
+
+	// Default values
+	if pageNumber == 0 {
+		pageNumber = 1
+	}
+	if rowsPerPage == 0 {
+		rowsPerPage = 10
+	}
+
+	// Build the filter
+	filter := bson.M{}
+	if searchQuery != "" {
+		filter["name"] = bson.M{"$regex": searchQuery, "$options": "i"}
+	}
+
+	// Define sort options
+	var sortOptions bson.D
+	if sortBy != "" {
+		order := 1
+		if sortOrder == "desc" {
+			order = -1
+		}
+		sortOptions = bson.D{{sortBy, order}}
+	} else {
+		sortOptions = bson.D{{"_id", 1}} // Default sort by _id ascending
+	}
+
+	// Define pagination parameters
+	skip := int64((pageNumber - 1) * rowsPerPage)
+	limit := int64(rowsPerPage)
+
+	// Fetch the items
+	items, err := collection.FindAll(filter, sortOptions, skip, limit)
 	if err != nil {
 		http.Error(w, "Failed to fetch items", http.StatusInternalServerError)
 		log.Printf("Error fetching items: %v", err)
 		return
 	}
 
+	// // Count total items for pagination
+	// totalCount, err := collection.CountDocuments(filter)
+	// if err != nil {
+	// 	http.Error(w, "Failed to count items", http.StatusInternalServerError)
+	// 	log.Printf("Error counting items: %v", err)
+	// 	return
+	// }
+
+	// Create response
+	// Only return the array of items
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(items); err != nil {
 		http.Error(w, "Failed to encode items", http.StatusInternalServerError)

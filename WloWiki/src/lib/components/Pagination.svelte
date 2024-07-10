@@ -1,9 +1,14 @@
 <script lang="ts">
-	import type { DataHandler } from '@vincjo/datatables';
+	import type { DataHandler } from '@vincjo/datatables/remote';
 	export let handler: DataHandler;
 	const pageNumber = handler.getPageNumber();
 	const pageCount = handler.getPageCount();
 	const pages = handler.getPages({ ellipsis: true });
+
+	const setPage = (value: 'previous' | 'next' | number) => {
+		handler.setPage(value);
+		handler.invalidate();
+	};
 </script>
 
 <!-- Desktop buttons -->

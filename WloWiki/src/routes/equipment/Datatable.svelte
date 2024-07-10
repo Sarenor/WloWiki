@@ -6,27 +6,24 @@
     import RowsPerPage from '$lib/components/RowsPerPage.svelte';
     import Pagination from '$lib/components/Pagination.svelte';
     import { goto } from '$app/navigation';
-    import { DataHandler } from '@vincjo/datatables';
-    import data from '$lib/data/api';
+    import { DataHandler } from '@vincjo/datatables/remote';
+    import type { State, Row } from '@vincjo/datatables/remote';
 
-    const handler = new DataHandler(data, { rowsPerPage: 15 });
+    //import data from '$lib/data/api';
+
+    import { reload } from '$lib/data/api'
+
+    
+    const handler = new DataHandler<Row>([], { rowsPerPage: 15, totalRows: 200});
     const rows = handler.getRows();
+
+    handler.onChange((state: State) => reload(state));
+    handler.invalidate();
 
     function getImagePath(name: string) {
 		const formattedName = name.toLowerCase().replace(/ /g, '_');
 		return `/items/img/${formattedName}.png`;
     }
-
-    function imageExists(imageUrl) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.src = imageUrl;
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-    });
-}
-
-    let selectedIndex = -1;
 
     // Function to navigate and include a query parameter
     function handleClick(index: string) {
@@ -34,6 +31,8 @@
         // Navigate to a new page with a query parameter
         goto(`/item/${index}`);
     }
+
+
 </script>
 
 <div class=" overflow-x-auto space-y-2">
