@@ -1,7 +1,7 @@
 import type { State } from '@vincjo/datatables/remote';
 
-export const reload = async (state: State) => {
-	const response = await fetch(`http://localhost:8080/api/items?${getParams(state)}`);
+export const load = async (state: State) => {
+	const response = await fetch(`https://web.astagan.pl/api/items?${getParams(state)}`);
 	return response.json();
 };
 
