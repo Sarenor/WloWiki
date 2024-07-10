@@ -21,7 +21,7 @@ jobs:
       - name: test
         run: ls -lha
       - name: Install dependencies
-        run: npm install
+        run: npm install WloWiki/package.json
 
       - name: Build project
         run: npm run build
