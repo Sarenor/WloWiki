@@ -1,76 +1,102 @@
 <script>
-    import Datatable from "./equipment/Datatable.svelte";
-
-</script>
-<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
-
-
-
-<!-- 
-
-<style>
-    .main-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background-color: #1a1a1a; /* Dark background for Halloween theme */
-        color: #f5f5f5;
-        text-align: center;
-        overflow: hidden;
+    let pages = [
+      { name: 'Items', path: '/equipment' },
+      { name: 'Alchemy', path: '/alchemy' },
+      { name: 'Monsters', path: '/monsters' },
+      { name: 'Manufacture', path: '/manufacture' },
+      { name: 'Quests', path: '/quests' },
+      { name: 'Guides', path: '/guides' },
+      { name: 'About', path: '/about' }
+    ];
+  </script>
+  
+  <div class="navbar">
+    <ul>
+      {#each pages as page}
+        <li><a href={page.path}>{page.name}</a></li>
+      {/each}
+    </ul>
+  </div>
+  
+  <div class="main-content">
+    <h1>Welcome to the Witch's Domain</h1>
+    <img src="maid.png" alt="Glowing Witch" class="witch-image" />
+  
+    <div class="change-fixes">
+      <h2>Change Fixes</h2>
+      <p>Add your change fixes here...</p>
+    </div>
+  </div>
+  
+  <style>
+    .navbar {
+      background-color: #100b52;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
     }
-
+  
+    .navbar ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+  
+    .navbar li {
+      margin: 0 10px;
+    }
+  
+    .navbar a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+  
+    .navbar a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+  
+    .main-content {
+      text-align: center;
+      padding: 80px 20px 20px; /* Added top padding to account for the fixed navbar */
+    }
+  
     .witch-image {
-        width: 250px; /* Size of the image */
-        height: auto;
-        position: relative;
-        filter: drop-shadow(0 0 15px #ff0000); /* Glowing red effect */
-        transition: filter 0.3s ease;
+      width: 300px;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+      animation: glow 1.5s infinite alternate;
     }
-
-    .witch-image:hover {
-        filter: drop-shadow(0 0 30px #ff0000); /* Stronger glow on hover */
+  
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 10px #ffd700;
+      }
+      to {
+        box-shadow: 0 0 20px #ffd700;
+      }
     }
-
-    .title {
-        font-size: 3rem;
-        margin: 1rem;
-        font-family: 'Comic Sans MS', cursive, sans-serif; /* Fun, spooky font */
-        color: #ffcc00; /* Bright yellow text */
-        text-shadow: 2px 2px 4px #000000; /* Text shadow for extra spookiness */
+  
+    .change-fixes {
+      margin-top: 40px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f9f9f9; /* Light background for contrast */
+      display: inline-block; /* Centered with respect to the image */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for better visibility */
     }
-
-    .subtitle {
-        font-size: 1.5rem;
-        color: #cccccc; /* Light gray color for subtitle */
-        margin-bottom: 2rem;
+  
+    .change-fixes h2 {
+      margin-top: 0;
     }
-
-    .spooky-effect {
-        position: absolute;
-        top: 10%;
-        left: 10%;
-        width: 60%;
-        height: 60%;
-        background: radial-gradient(circle, rgba(255,0,0,0.5) 0%, rgba(1, 18, 112, 0.712) 100%);
-        border-radius: 50%;
-        opacity: 0.6;
-        animation: spooky 1.5s infinite;
-    }
-
-    @keyframes spooky {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
-    }
-</style> -->
-
-<Datatable/>
-
-<!-- <div class="main-container">
-    <div class="spooky-effect"></div>
-    <img src="maid.png" alt="Anime Witch" class="witch-image">
-    <h1 class="title">Welcome to the Wlo Lair!</h1>
-    <p class="subtitle" ><a href="/equipment">Equipments</a></p>
-</div> -->
+  </style>
+  
