@@ -25,6 +25,7 @@ var items []Item
 var nextID = 1
 
 func main() {
+
 	r := mux.NewRouter()
 	client, err := mongo.NewClient("mongodb://admin:ojNBLAZXEcqc2@49.13.132.251:27017")
 	if err != nil {
@@ -53,6 +54,25 @@ func main() {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
+
+	// New endpoint for fetching a single item by item_id
+	r.HandleFunc("/api/items/{item_id}", func(w http.ResponseWriter, r *http.Request) {
+		// CORS Headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			// Preflight request
+			return
+		}
+		switch r.Method {
+		case http.MethodGet:
+			fetchItemHandler(w, r, itemsCollection)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	}).Methods("GET")
 
 	// Start the server
 	log.Println("Starting server on :8080")
@@ -106,20 +126,41 @@ func fetchItemsHandler(w http.ResponseWriter, r *http.Request, collection *mongo
 		return
 	}
 
-	// // Count total items for pagination
-	// totalCount, err := collection.CountDocuments(filter)
-	// if err != nil {
-	// 	http.Error(w, "Failed to count items", http.StatusInternalServerError)
-	// 	log.Printf("Error counting items: %v", err)
-	// 	return
-	// }
-
-	// Create response
-	// Only return the array of items
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(items); err != nil {
 		http.Error(w, "Failed to encode items", http.StatusInternalServerError)
 		log.Printf("Error encoding items: %v", err)
+	}
+}
+
+func fetchItemHandler(w http.ResponseWriter, r *http.Request, collection *mongo.ItemsCollection) {
+	vars := mux.Vars(r)
+	itemID := vars["item_id"]
+
+	// Convert itemID to MongoDB ObjectID
+	objID, err := strconv.Atoi(itemID)
+	if err != nil {
+		http.Error(w, "Invalid item ID", http.StatusBadRequest)
+		log.Printf("Invalid item ID: %v", err)
+		return
+	}
+
+	// Build the filter
+	filter := bson.M{"item_id": objID}
+
+	// Fetch the item
+	item, err := collection.FindOne(filter)
+	if err != nil {
+		http.Error(w, "Failed to fetch item", http.StatusInternalServerError)
+		log.Printf("Error fetching item: %v", err)
+
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(item); err != nil {
+		http.Error(w, "Failed to encode item", http.StatusInternalServerError)
+		log.Printf("Error encoding item: %v", err)
 	}
 }
 

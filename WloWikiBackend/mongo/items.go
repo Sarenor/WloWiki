@@ -70,6 +70,16 @@ func (ic *ItemsCollection) FindAll(filter bson.M, sortOptions bson.D, skip int64
 	return items, nil
 }
 
+// FindOne retrieves a single item from the collection based on the given filter
+func (ic *ItemsCollection) FindOne(filter bson.M) (bson.M, error) {
+	var item bson.M
+	err := ic.collection.FindOne(context.TODO(), filter).Decode(&item)
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
+}
+
 // CountDocuments counts the number of documents in the collection that match the given filter
 func (ic *ItemsCollection) CountDocuments(filter bson.M) (int64, error) {
 	count, err := ic.collection.CountDocuments(context.TODO(), filter)

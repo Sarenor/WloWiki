@@ -1,12 +1,16 @@
 
 <script>
     import { page } from '$app/stores'
-    import data from '$lib/data/api_static';
+    //import data from '$lib/data/api_static';
     import dataAlchemy from '$lib/data/alchemy';
+    import { onMount } from 'svelte';
+
   //export let image = "/src/routes/items/imagespng/red_dragon_gown.png"; // Placeholder image URL
 
   // You can use this for additional interactivity or state management
   let isHovered = false;
+  let item = null;
+  let error;
 
   function getImagePath(name) {
 		const formattedName = name.toLowerCase().replace(/ /g, '_');
@@ -14,15 +18,34 @@
     }
 
   let item_id = $page.params.id;
-  let item = data.find(item => item.item_id === parseInt(item_id));
+  // Fetch items from the API
+  async function fetchItem() {
+      try {
+          const response = await fetch(`http://49.13.132.251:8080/api/items/${item_id}`);
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          item = await response.json();
+      } catch (err) {
+          error = err;
+      }
+  }
+  
 
-  export let item_name = item?.Name;
-  export let type = item?.Type;
-  export let base = item?.Base
-  export let description = item?.Description
-  export let size = item?.Size
-  export let rank = item?.Rank
-  export let attributes = item?.Attributes;
+  onMount(async () => {
+        await fetchItem();
+    });
+
+
+  // Reactive statements to update exportable variables
+  $: item_name = item?.Name;
+  $: type = item?.Type;
+  $: base = item?.Base;
+  $: description = item?.Description;
+  $: size = item?.Size;
+  $: rank = item?.Rank;
+  $: attributes = item?.Attributes;
+
 </script>
 
 
@@ -106,9 +129,14 @@
     margin-right: 8px;
   }
   </style>
+
 <div class="card" on:mouseover={() => isHovered = true} on:mouseleave={() => isHovered = false}>
   <div class="card-header">
-    <img src={getImagePath(item_name)} alt={item_name} />
+    {#if item_name}
+        <img src={getImagePath(item_name)} alt={item_name} />
+    {:else}
+        <p>Loading...</p>
+    {/if}
     <h2>{item_name}</h2>
   </div>
   <div class="card-content">
