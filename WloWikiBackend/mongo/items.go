@@ -71,11 +71,11 @@ func (ic *ItemsCollection) FindAll(filter bson.M, sortOptions bson.D, skip int64
 }
 
 // FindOne retrieves a single item from the collection based on the given filter
-func (ic *ItemsCollection) FindOne(filter bson.M) (bson.M, error) {
-	var item bson.M
+func (ic *ItemsCollection) FindOne(filter bson.M) (Item, error) {
+	var item Item
 	err := ic.collection.FindOne(context.TODO(), filter).Decode(&item)
 	if err != nil {
-		return nil, err
+		return Item{}, err
 	}
 	return item, nil
 }

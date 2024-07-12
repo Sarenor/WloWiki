@@ -14,9 +14,11 @@
   let error;
 
   function getImagePath(name) {
-		const formattedName = name.toLowerCase().replace(/ /g, '_');
-		return `/items/img/${formattedName}.png`;
-    }
+  if (!name) return '/items/img/no_school.png'; // Provide a placeholder image path
+  const formattedName = name.toLowerCase().replace(/ /g, '_');
+  return `/items/img/${formattedName}.png`;
+}
+
 
   let item_id = $page.params.id;
   // Fetch items from the API
@@ -114,13 +116,13 @@
           <td>{level}</td>
           <td>
             <div class="item">
-              <!-- <img src={result.image} alt={result.name} /> -->
-              <span>{result}</span>
+              <img src={getImagePath(result?.Name)} alt={result?.Name} />
+              <span>{result?.Name}</span>
               =
               {#each ingredients as ingredient, index}
                 <div class="item">
-                  <!-- <img src={ingredient.image} alt={ingredient.name} /> -->
-                  <span>{ingredient}</span>
+                  <img src={getImagePath(ingredient?.Name)} alt={ingredient?.name} />
+                  <span>{ingredient?.Name}</span>
                   {index < ingredients.length - 1 ? ' + ' : ''}
                 </div>
               {/each}

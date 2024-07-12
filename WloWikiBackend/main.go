@@ -14,14 +14,9 @@ import (
 )
 
 // Item represents a simple item structure
-type Item struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
 
 // In-memory database (for demonstration purposes)
-var items []Item
+
 var nextID = 1
 
 func main() {
@@ -89,7 +84,7 @@ func main() {
 		}
 		switch r.Method {
 		case http.MethodGet:
-			fetchAlchemyItemsHandler(w, r, alchemyCollection)
+			fetchAlchemyItemsHandler(w, r, alchemyCollection, itemsCollection)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -237,7 +232,7 @@ func fetchAlchemyItemsHandler2(w http.ResponseWriter, r *http.Request, collectio
 	}
 }
 
-func fetchAlchemyItemsHandler(w http.ResponseWriter, r *http.Request, collection *mongo.AlchemyCollection) {
+func fetchAlchemyItemsHandler1(w http.ResponseWriter, r *http.Request, collection *mongo.AlchemyCollection) {
 	// Get item_id from query parameters
 	itemIDStr := r.URL.Query().Get("item_id")
 	if itemIDStr == "" {
@@ -273,4 +268,97 @@ func fetchAlchemyItemsHandler(w http.ResponseWriter, r *http.Request, collection
 		http.Error(w, "Failed to encode items", http.StatusInternalServerError)
 		log.Printf("Error encoding items: %v", err)
 	}
+}
+
+func fetchAlchemyItemsHandler(w http.ResponseWriter, r *http.Request, alchemyCollection *mongo.AlchemyCollection, itemCollection *mongo.ItemsCollection) {
+	// Get item_id from query parameters
+	itemIDStr := r.URL.Query().Get("item_id")
+	if itemIDStr == "" {
+		http.Error(w, "item_id query parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	// Convert itemIDStr to int
+	itemID, err := strconv.Atoi(itemIDStr)
+	if err != nil {
+		http.Error(w, "Invalid item_id format", http.StatusBadRequest)
+		return
+	}
+
+	// Create a filter to find documents where itemID is in ingredients or matches result
+	filter := bson.M{
+		"$or": []bson.M{
+			{"ingredients": itemID},
+			{"result": itemID},
+		},
+	}
+
+	// Fetch documents from the collection based on the filter
+	//var recipes []AlchemyItem
+	recipes, _ := alchemyCollection.Find(filter)
+
+	// Create a map to fetch all items in one go
+	itemMap := make(map[int]mongo.Item)
+	uniqueItemIDs := getAllUniqueItemIDs(recipes)
+	for _, id := range uniqueItemIDs {
+		item, err := itemCollection.FindOne(bson.M{"item_id": id})
+
+		if err != nil {
+			log.Printf("Failed to fetch item details for item_id %d: %v", id, err)
+			continue
+		}
+		itemMap[id] = item
+	}
+
+	// Prepare a response structure with full item details
+	type ResponseRecipe struct {
+		Level          int          `json:"level"`
+		RankDifference string       `json:"rank_difference"`
+		Result         mongo.Item   `json:"result"`
+		Ingredients    []mongo.Item `json:"ingredients"`
+	}
+
+	var responseRecipes []ResponseRecipe
+	for _, recipe := range recipes {
+		resultItem, resultExists := itemMap[recipe.Result]
+		if !resultExists {
+			continue
+		}
+		var ingredientItems []mongo.Item
+		for _, ingredientID := range recipe.Ingredients {
+			if item, exists := itemMap[ingredientID]; exists {
+				ingredientItems = append(ingredientItems, item)
+			}
+		}
+		responseRecipes = append(responseRecipes, ResponseRecipe{
+			Level:          recipe.Level,
+			RankDifference: recipe.RankDifference,
+			Result:         resultItem,
+			Ingredients:    ingredientItems,
+		})
+	}
+
+	// Encode the response
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(responseRecipes); err != nil {
+		http.Error(w, "Failed to encode items", http.StatusInternalServerError)
+		log.Printf("Error encoding items: %v", err)
+	}
+}
+
+// Helper function to get all unique item IDs from the recipes
+func getAllUniqueItemIDs(recipes []mongo.AlchemyItem) []int {
+	itemIDs := map[int]struct{}{}
+	for _, recipe := range recipes {
+		itemIDs[recipe.Result] = struct{}{}
+		for _, id := range recipe.Ingredients {
+			itemIDs[id] = struct{}{}
+		}
+	}
+
+	var ids []int
+	for id := range itemIDs {
+		ids = append(ids, id)
+	}
+	return ids
 }
