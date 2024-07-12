@@ -24,7 +24,7 @@
   // Fetch items from the API
   async function fetchItem() {
       try {
-          const response = await fetch(`http://localhost:8080/api/materials/${item_id}`);
+          const response = await fetch(`/api/materials/${item_id}`);
           console.warn(response)
           if (!response.ok) {
               throw new Error('Network response was not ok');

@@ -51,9 +51,9 @@
                 <ThSort {handler} orderBy="email">Email</ThSort> -->
             </tr>
             <tr>
-                <!-- <ThFilter {handler} filterBy="first_name" />
-                <ThFilter {handler} filterBy="last_name" />
-                <ThFilter {handler} filterBy="email" /> -->
+                <ThFilter {handler} filterBy="Name" />
+                <ThFilter {handler} filterBy="Type" />
+                <ThFilter {handler} filterBy="Base" />
             </tr>
         </thead>
         <tbody>

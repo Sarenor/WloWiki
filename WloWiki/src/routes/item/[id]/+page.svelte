@@ -24,7 +24,7 @@
   // Fetch items from the API
   async function fetchItem() {
       try {
-          const response = await fetch(`http://localhost:8080/api/items/${item_id}`);
+          const response = await fetch(`/api/items/${item_id}`);
           if (!response.ok) {
               throw new Error('Network response was not ok');
           }
@@ -36,7 +36,7 @@
 
   async function fetchRecipes() {
       try {
-          const response = await fetch(`http://localhost:8080/alchemy?item_id=${item_id}`);
+          const response = await fetch(`/alchemy?item_id=${item_id}`);
           if (!response.ok) {
               throw new Error('Network response was not ok');
           }

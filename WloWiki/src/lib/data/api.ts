@@ -1,7 +1,7 @@
 import type { State } from '@vincjo/datatables/remote';
 
 export const reload = async (state: State, type: String) => {
-	const response = await fetch(`http://localhost:8080/api/${type}?${getParams(state)}`);
+	const response = await fetch(`/api/${type}?${getParams(state)}`);
 	return response.json();
 };
 
