@@ -27,7 +27,7 @@ type MaterialsCollection struct {
 
 // NewMaterialsCollection creates a new MaterialsCollection instance
 func NewMaterialsCollection(client *Client) *MaterialsCollection {
-	collection := client.Database("wlodb").Collection("equipment")
+	collection := client.Database("wlodb").Collection("material")
 	return &MaterialsCollection{collection}
 }
 

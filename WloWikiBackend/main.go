@@ -22,7 +22,7 @@ var nextID = 1
 func main() {
 
 	r := mux.NewRouter()
-	client, err := mongo.NewClient("mongodb://admin:ojNBLAZXEcqc2@49.13.132.251:27017")
+	client, err := mongo.NewClient("mongodb://localhost:27017")
 	if err != nil {
 		log.Fatalf("Failed to create MongoDB client: %v", err)
 	}
@@ -155,7 +155,7 @@ func fetchItemsHandler(w http.ResponseWriter, r *http.Request, collection *mongo
 	// Build the filter
 	filter := bson.M{}
 	if searchQuery != "" {
-		filter["name"] = bson.M{"$regex": searchQuery, "$options": "i"}
+		filter["Name"] = bson.M{"$regex": searchQuery, "$options": "i"}
 	}
 
 	// Define sort options

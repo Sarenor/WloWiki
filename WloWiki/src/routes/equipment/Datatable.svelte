@@ -32,7 +32,10 @@
         goto(`/item/${index}`);
     }
 
-
+    const noImagePath = '/items/img/no_image.png';
+    function handleError(event) {
+        event.target.src = noImagePath;
+    }
 </script>
 
 <div class=" overflow-x-auto space-y-2">
@@ -57,7 +60,7 @@
             {#each $rows as row, index}
 
                 <tr on:click={() => handleClick(row.item_id)}>
-                    <td><img src={getImagePath(row.Name)} alt={row.Name} class="image"/></td>
+                    <td><img src={getImagePath(row.Name)} on:error={handleError} alt={row.Name} class="image"/></td>
                     <td>{row.Rank}</td>
                     <td>{row.Name}</td>
                     <td>{row.Type}</td>
