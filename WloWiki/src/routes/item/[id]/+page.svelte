@@ -1,15 +1,16 @@
 
 <script>
-    import { page } from '$app/stores'
-    //import data from '$lib/data/api_static';
-    import dataAlchemy from '$lib/data/alchemy';
-    import { onMount } from 'svelte';
+  import { page } from '$app/stores'
+  //import data from '$lib/data/api_static';
+  //import dataAlchemy from '$lib/data/alchemy';
+  import { onMount } from 'svelte';
 
   //export let image = "/src/routes/items/imagespng/red_dragon_gown.png"; // Placeholder image URL
 
   // You can use this for additional interactivity or state management
   let isHovered = false;
   let item = null;
+  let recipes = []
   let error;
 
   function getImagePath(name) {
@@ -21,7 +22,7 @@
   // Fetch items from the API
   async function fetchItem() {
       try {
-          const response = await fetch(`http://49.13.132.251:8080/api/items/${item_id}`);
+          const response = await fetch(`http://localhost:8080/api/items/${item_id}`);
           if (!response.ok) {
               throw new Error('Network response was not ok');
           }
@@ -30,10 +31,23 @@
           error = err;
       }
   }
+
+  async function fetchRecipes() {
+      try {
+          const response = await fetch(`http://localhost:8080/alchemy?item_id=${item_id}`);
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          recipes = await response.json();
+      } catch (err) {
+          error = err;
+      }
+  }
   
 
   onMount(async () => {
         await fetchItem();
+        await fetchRecipes();
     });
 
 
@@ -45,9 +59,78 @@
   $: size = item?.Size;
   $: rank = item?.Rank;
   $: attributes = item?.Attributes;
+  //$: recipe_data = recipes
 
 </script>
 
+
+<div class="card" on:mouseover={() => isHovered = true} on:mouseleave={() => isHovered = false}>
+  <div class="card-header">
+    {#if item_name}
+        <img src={getImagePath(item_name)} alt={item_name} />
+    {:else}
+        <p>Loading...</p>
+    {/if}
+    <h2>{item_name}</h2>
+  </div>
+  <div class="card-content">
+    <div class="info-row">
+      <p><strong>Type:</strong> {type}</p>
+      <p><strong>Rank:</strong> {rank}</p>
+    </div>
+    <div class="info-row">
+      <p><strong>Attributes:</strong> {attributes}</p>
+      <p><strong>Base:</strong> {base}</p>
+    </div>
+    <div class="info-row">
+      <p><strong>Level:</strong> {rank}</p>
+      <p><strong>Size:</strong> {size}</p>
+    </div>
+  </div>
+  <div class="description">
+    <p>{description}</p>
+  </div>
+  <div class="footer">
+    {#if isHovered}
+      <p>🧥 Check out this amazing armor!</p>
+    {/if}
+  </div>
+</div>
+
+
+{#if recipes.length === 0}
+  <p>No recipes available.</p>
+{:else}
+  <table class="skeleton">
+    <thead>
+      <tr>
+        <th>Alchemy Level</th>
+        <th>Recipe</th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each recipes as { level, rank_difference, result, ingredients }}
+        <tr>
+          <td>{level}</td>
+          <td>
+            <div class="item">
+              <!-- <img src={result.image} alt={result.name} /> -->
+              <span>{result}</span>
+              =
+              {#each ingredients as ingredient, index}
+                <div class="item">
+                  <!-- <img src={ingredient.image} alt={ingredient.name} /> -->
+                  <span>{ingredient}</span>
+                  {index < ingredients.length - 1 ? ' + ' : ''}
+                </div>
+              {/each}
+            </div>
+          </td>
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+  {/if}
 
 <style>
   .card {
@@ -130,96 +213,4 @@
   }
   </style>
 
-<div class="card" on:mouseover={() => isHovered = true} on:mouseleave={() => isHovered = false}>
-  <div class="card-header">
-    {#if item_name}
-        <img src={getImagePath(item_name)} alt={item_name} />
-    {:else}
-        <p>Loading...</p>
-    {/if}
-    <h2>{item_name}</h2>
-  </div>
-  <div class="card-content">
-    <div class="info-row">
-      <p><strong>Type:</strong> {type}</p>
-      <p><strong>Rank:</strong> {rank}</p>
-    </div>
-    <div class="info-row">
-      <p><strong>Attributes:</strong> {attributes}</p>
-      <p><strong>Base:</strong> {base}</p>
-    </div>
-    <div class="info-row">
-      <p><strong>Level:</strong> {rank}</p>
-      <p><strong>Size:</strong> {size}</p>
-    </div>
-  </div>
-  <div class="description">
-    <p>{description}</p>
-  </div>
-  <div class="footer">
-    {#if isHovered}
-      <p>🧥 Check out this amazing armor!</p>
-    {/if}
-  </div>
-</div>
 
-<table class="skeleton">
-  <thead>
-    <tr>
-      <th>Alchemy Level</th>
-      <th>Recipe</th>
-    </tr>
-  </thead>
-  <tbody>
-    {#each dataAlchemy as { level, result, ingredients }}
-      <tr>
-        <td>{level}</td>
-        <td>
-          <div class="item">
-            <img src={result.image} alt={result.name} />
-            <span>{result.name}</span>
-            =
-            {#each ingredients as ingredient, index}
-              <div class="item">
-                <img src={ingredient.image} alt={ingredient.name} />
-                <span>{ingredient.name}</span>
-                {index < ingredients.length - 1 ? ' + ' : ''}
-              </div>
-            {/each}
-          </div>
-        </td>
-      </tr>
-    {/each}
-  </tbody>
-</table>
-
-
-  <table class="skeleton">
-    <thead>
-      <tr>
-        <th>Alchemy Level</th>
-        <th>Recipe</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each dataAlchemy as { level, result, ingredients }}
-        <tr>
-          <td>{level}</td>
-          <td>
-            <div class="item">
-              <img src={result.image} alt={result.name} />
-              <span>{result.name}</span>
-              =
-              {#each ingredients as ingredient, index}
-                <div class="item">
-                  <img src={ingredient.image} alt={ingredient.name} />
-                  <span>{ingredient.name}</span>
-                  {index < ingredients.length - 1 ? ' + ' : ''}
-                </div>
-              {/each}
-            </div>
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>

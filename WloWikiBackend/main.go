@@ -74,6 +74,27 @@ func main() {
 		}
 	}).Methods("GET")
 
+	alchemyCollection := mongo.NewAlchemyCollection(client)
+
+	r.HandleFunc("/alchemy", func(w http.ResponseWriter, r *http.Request) {
+
+		// CORS Headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			// Preflight request
+			return
+		}
+		switch r.Method {
+		case http.MethodGet:
+			fetchAlchemyItemsHandler(w, r, alchemyCollection)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	}).Methods("GET")
+
 	// Start the server
 	log.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", r); err != nil {
@@ -191,4 +212,65 @@ func createItemHandler(w http.ResponseWriter, r *http.Request, itemsCollection *
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(responseJSON)
+}
+
+type AlchemyItem struct {
+	Level          int    `json:"level"`
+	RankDifference string `json:"rank_difference"`
+	Result         int    `json:"result"`
+	Ingredients    []int  `json:"ingredients"`
+}
+
+func fetchAlchemyItemsHandler2(w http.ResponseWriter, r *http.Request, collection *mongo.AlchemyCollection) {
+	// Fetch all items
+	items, err := collection.FindAll()
+	if err != nil {
+		http.Error(w, "Failed to fetch items", http.StatusInternalServerError)
+		log.Printf("Error fetching items: %v", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(items); err != nil {
+		http.Error(w, "Failed to encode items", http.StatusInternalServerError)
+		log.Printf("Error encoding items: %v", err)
+	}
+}
+
+func fetchAlchemyItemsHandler(w http.ResponseWriter, r *http.Request, collection *mongo.AlchemyCollection) {
+	// Get item_id from query parameters
+	itemIDStr := r.URL.Query().Get("item_id")
+	if itemIDStr == "" {
+		http.Error(w, "item_id query parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	// Convert itemIDStr to int
+	itemID, err := strconv.Atoi(itemIDStr)
+	if err != nil {
+		http.Error(w, "Invalid item_id format", http.StatusBadRequest)
+		return
+	}
+
+	// Create a filter to find documents where itemID is in ingredients or matches result
+	filter := bson.M{
+		"$or": []bson.M{
+			{"ingredients": itemID},
+			{"result": itemID},
+		},
+	}
+
+	// Fetch documents from the collection based on the filter
+	items, err := collection.Find(filter)
+	if err != nil {
+		http.Error(w, "Failed to fetch items", http.StatusInternalServerError)
+		log.Printf("Error fetching items: %v", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(items); err != nil {
+		http.Error(w, "Failed to encode items", http.StatusInternalServerError)
+		log.Printf("Error encoding items: %v", err)
+	}
 }
