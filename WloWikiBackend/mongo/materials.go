@@ -9,7 +9,7 @@ import (
 )
 
 // Item represents an item document in MongoDB
-type Item struct {
+type Material struct {
 	ItemID      int32  `bson:"item_id"`
 	Rank        string `bson:"rank"`
 	Name        string `bson:"name"`
@@ -20,21 +20,21 @@ type Item struct {
 	Description string `bson:"description"`
 }
 
-// ItemsCollection wraps the MongoDB collection
-type ItemsCollection struct {
+// MaterialsCollection wraps the MongoDB collection
+type MaterialsCollection struct {
 	collection *mongo.Collection
 }
 
-// NewItemsCollection creates a new ItemsCollection instance
-func NewItemsCollection(client *Client, ctype string) *ItemsCollection {
-	collection := client.Database("wlodb").Collection(ctype)
-	return &ItemsCollection{collection}
+// NewMaterialsCollection creates a new MaterialsCollection instance
+func NewMaterialsCollection(client *Client) *MaterialsCollection {
+	collection := client.Database("wlodb").Collection("equipment")
+	return &MaterialsCollection{collection}
 }
 
-// InsertMany inserts multiple items into the collection
-func (ic *ItemsCollection) InsertMany(items []Item) error {
+// InsertMany inserts multiple Materials into the collection
+func (ic *MaterialsCollection) InsertMany(Materials []Material) error {
 	var documents []interface{}
-	for _, item := range items {
+	for _, item := range Materials {
 		documents = append(documents, item)
 	}
 	_, err := ic.collection.InsertMany(context.TODO(), documents)
@@ -42,7 +42,7 @@ func (ic *ItemsCollection) InsertMany(items []Item) error {
 }
 
 // InsertOne inserts a single item into the collection
-func (ic *ItemsCollection) InsertOne(item Item) (*mongo.InsertOneResult, error) {
+func (ic *MaterialsCollection) InsertOne(item Material) (*mongo.InsertOneResult, error) {
 	result, err := ic.collection.InsertOne(context.TODO(), item)
 	if err != nil {
 		return nil, err
@@ -50,8 +50,8 @@ func (ic *ItemsCollection) InsertOne(item Item) (*mongo.InsertOneResult, error) 
 	return result, nil
 }
 
-// FindAll retrieves all items from the collection with the given filter, sort options, skip, and limit
-func (ic *ItemsCollection) FindAll(filter bson.M, sortOptions bson.D, skip int64, limit int64) ([]bson.M, error) {
+// FindAll retrieves all Materials from the collection with the given filter, sort options, skip, and limit
+func (ic *MaterialsCollection) FindAll(filter bson.M, sortOptions bson.D, skip int64, limit int64) ([]bson.M, error) {
 	findOptions := options.Find()
 	findOptions.SetSort(sortOptions)
 	findOptions.SetSkip(skip)
@@ -63,25 +63,25 @@ func (ic *ItemsCollection) FindAll(filter bson.M, sortOptions bson.D, skip int64
 	}
 	defer cursor.Close(context.TODO())
 
-	var items []bson.M
-	if err := cursor.All(context.TODO(), &items); err != nil {
+	var Materials []bson.M
+	if err := cursor.All(context.TODO(), &Materials); err != nil {
 		return nil, err
 	}
-	return items, nil
+	return Materials, nil
 }
 
 // FindOne retrieves a single item from the collection based on the given filter
-func (ic *ItemsCollection) FindOne(filter bson.M) (Item, error) {
-	var item Item
+func (ic *MaterialsCollection) FindOne(filter bson.M) (Material, error) {
+	var item Material
 	err := ic.collection.FindOne(context.TODO(), filter).Decode(&item)
 	if err != nil {
-		return Item{}, err
+		return Material{}, err
 	}
 	return item, nil
 }
 
 // CountDocuments counts the number of documents in the collection that match the given filter
-func (ic *ItemsCollection) CountDocuments(filter bson.M) (int64, error) {
+func (ic *MaterialsCollection) CountDocuments(filter bson.M) (int64, error) {
 	count, err := ic.collection.CountDocuments(context.TODO(), filter)
 	if err != nil {
 		return 0, err
@@ -90,13 +90,13 @@ func (ic *ItemsCollection) CountDocuments(filter bson.M) (int64, error) {
 }
 
 // UpdateOne updates a single item matching the filter
-func (ic *ItemsCollection) UpdateOne(filter bson.M, update bson.M) error {
+func (ic *MaterialsCollection) UpdateOne(filter bson.M, update bson.M) error {
 	_, err := ic.collection.UpdateOne(context.TODO(), filter, update)
 	return err
 }
 
 // DeleteOne deletes a single item matching the filter
-func (ic *ItemsCollection) DeleteOne(filter bson.M) error {
+func (ic *MaterialsCollection) DeleteOne(filter bson.M) error {
 	_, err := ic.collection.DeleteOne(context.TODO(), filter)
 	return err
 }

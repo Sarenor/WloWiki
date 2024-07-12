@@ -1,6 +1,7 @@
 <script>
     let pages = [
-      { name: 'Items', path: '/equipment' }
+      { name: 'Equipment', path: '/equipment' },
+      { name: 'Materials', path: '/materials' }
     ];
   </script>
   

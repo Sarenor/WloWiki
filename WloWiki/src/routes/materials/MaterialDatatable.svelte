@@ -17,7 +17,7 @@
     const handler = new DataHandler<Row>([], { rowsPerPage: 15, totalRows: 9999});
     const rows = handler.getRows();
 
-    handler.onChange((state: State) => reload(state, "items"));
+    handler.onChange((state: State) => reload(state, "materials"));
     handler.invalidate();
 
     function getImagePath(name: string) {
@@ -29,7 +29,7 @@
     function handleClick(index: string) {
         console.log('Button was clicked ' + index);
         // Navigate to a new page with a query parameter
-        goto(`/item/${index}`);
+        goto(`/material/${index}`);
     }
 
 

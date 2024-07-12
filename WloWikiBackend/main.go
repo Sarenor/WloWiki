@@ -28,7 +28,8 @@ func main() {
 	}
 
 	// Create the Items collection instance
-	itemsCollection := mongo.NewItemsCollection(client)
+	itemsCollection := mongo.NewItemsCollection(client, "equipment")
+	matsCollection := mongo.NewItemsCollection(client, "materials")
 
 	r.HandleFunc("/api/items", func(w http.ResponseWriter, r *http.Request) {
 		// CORS Headers
@@ -64,6 +65,45 @@ func main() {
 		switch r.Method {
 		case http.MethodGet:
 			fetchItemHandler(w, r, itemsCollection)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	}).Methods("GET")
+
+	r.HandleFunc("/api/materials", func(w http.ResponseWriter, r *http.Request) {
+		// CORS Headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			// Preflight request
+			return
+		}
+		switch r.Method {
+		case http.MethodGet:
+			fetchItemsHandler(w, r, matsCollection)
+		case http.MethodPost:
+			createItemHandler(w, r, matsCollection)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// New endpoint for fetching a single item by item_id
+	r.HandleFunc("/api/materials/{item_id}", func(w http.ResponseWriter, r *http.Request) {
+		// CORS Headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			// Preflight request
+			return
+		}
+		switch r.Method {
+		case http.MethodGet:
+			fetchItemHandler(w, r, matsCollection)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
