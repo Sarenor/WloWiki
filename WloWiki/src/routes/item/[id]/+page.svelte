@@ -62,14 +62,17 @@
   $: rank = item?.Rank;
   $: attributes = item?.Attributes;
   //$: recipe_data = recipes
-
+  const noImagePath = '/items/img/no_image.png';
+    function handleError(event) {
+        event.target.src = noImagePath;
+    }
 </script>
 
 
 <div class="card" on:mouseover={() => isHovered = true} on:mouseleave={() => isHovered = false}>
   <div class="card-header">
     {#if item_name}
-        <img src={getImagePath(item_name)} alt={item_name} />
+        <img src={getImagePath(item_name)} on:error={handleError} alt={item_name} />
     {:else}
         <p>Loading...</p>
     {/if}
@@ -116,12 +119,12 @@
           <td>{level}</td>
           <td>
             <div class="item">
-              <img src={getImagePath(result?.Name)} alt={result?.Name} />
+              <img src={getImagePath(result?.Name)} on:error={handleError}  alt={result?.Name} />
               <span>{result?.Name}</span>
               =
               {#each ingredients as ingredient, index}
                 <div class="item">
-                  <img src={getImagePath(ingredient?.Name)} alt={ingredient?.name} />
+                  <img src={getImagePath(ingredient?.Name)} on:error={handleError} alt={ingredient?.name} />
                   <span>{ingredient?.Name}</span>
                   {index < ingredients.length - 1 ? ' + ' : ''}
                 </div>
