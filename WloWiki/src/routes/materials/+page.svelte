@@ -1,11 +1,9 @@
 <script>
     import MaterialDatatable from './MaterialDatatable.svelte';
-	export let data
+	export let data;
 	console.log(data)
 
 	
 </script>
 
-
-
-<MaterialDatatable />
+<MaterialDatatable initialMaterials={data.materials} />

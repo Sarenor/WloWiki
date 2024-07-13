@@ -1,7 +1,7 @@
 import type { State } from '@vincjo/datatables/remote';
 
-export const reload = async (state: State, type: String) => {
-	const response = await fetch(`/api/${type}?${getParams(state)}`);
+export const reload = async (state: State, type: String, providedFetch?: any) => {
+	const response = await providedFetch ? providedFetch(`/internalapi/${type}?${getParams(state)}`) : fetch(`/internalapi/${type}?${getParams(state)}`);
 	return response.json();
 };
 
