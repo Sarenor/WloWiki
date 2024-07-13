@@ -1,11 +1,11 @@
 <script>
 	import Datatable from './Datatable.svelte';
 	export let data
-	console.log(data)
+	console.log(data);
 
 	
 </script>
 
 
 
-<Datatable />
+<Datatable initialEquipments={data.equipments} />

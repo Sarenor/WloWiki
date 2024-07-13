@@ -13,12 +13,12 @@
 
     import { reload } from '$lib/data/api'
 
+    export let initialEquipments: Array<Row> = [];
     
-    const handler = new DataHandler<Row>([], { rowsPerPage: 15, totalRows: 9999});
+    const handler = new DataHandler<Row>(initialEquipments, { rowsPerPage: 15, totalRows: 9999});
     const rows = handler.getRows();
 
     handler.onChange((state: State) => reload(state, "items"));
-    handler.invalidate();
 
     function getImagePath(name: string) {
 		const formattedName = name.toLowerCase().replace(/ /g, '_');

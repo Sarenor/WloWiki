@@ -1,7 +1,5 @@
 <script lang="ts">
     import Search from '$lib/components/Search.svelte';
-    import ThFilter from '$lib/components/ThFilter.svelte';
-    import ThSort from '$lib/components/ThSort.svelte';
     import RowCount from '$lib/components/RowCount.svelte';
     import RowsPerPage from '$lib/components/RowsPerPage.svelte';
     import Pagination from '$lib/components/Pagination.svelte';
@@ -13,12 +11,12 @@
 
     import { reload } from '$lib/data/api'
 
+    export let initialMaterials: Array<Row> = [];
     
-    const handler = new DataHandler<Row>([], { rowsPerPage: 15, totalRows: 9999});
+    const handler = new DataHandler<Row>(initialMaterials, { rowsPerPage: 15, totalRows: 9999});
     const rows = handler.getRows();
 
     handler.onChange((state: State) => reload(state, "materials"));
-    handler.invalidate();
 
     function getImagePath(name: string) {
 		const formattedName = name.toLowerCase().replace(/ /g, '_');
